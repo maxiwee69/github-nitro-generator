@@ -1,3 +1,5 @@
+if you think this is fake or something watch https://www.youtube.com/watch?v=yWqqMp6ca30&t=96s
+
 This script sends POST requests to a specified URL and writes the received tokens to a file named 'nitrolinks.txt'. The script continues to send requests until it has been rate limited 5 times in a row.
 
 Modules:
