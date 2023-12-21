@@ -125,4 +125,43 @@ for i in range(QUANTITY):
 # if you want to use this code, please give credit to elily_uwu on discord
 # oh and also, please dont use this for malicious purposes
 # thanks :)
-# one last thing, hi :)
+# one last thing, hi :) 
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#pls fix my code if you can, i am a beginner and i dont know how to fix it :(
