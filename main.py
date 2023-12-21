@@ -28,71 +28,75 @@ headers = {
 
 
 def gen():
-    # Add a variable to track whether a proxy has been used
-    # used_proxy = False
+    # Add a variable to track how many times a proxy has been used
+    proxy_use_count = 0
+    used_proxy = False
     proxies = None
 
-    # Send a POST request without a proxy
-    response = requests.post(url, json=payload, headers=headers, proxies=proxies)
-
-    # Check if the rate limit has been exceeded
-    if response.status_code == 429:
-        print("You have been rate limited. Exiting the program.")
-        sys.exit()
-
-        # The following code is commented out because the proxy part is unstable
-        """
-        if used_proxy:
-            # Ask the user if they want to use another proxy
-            use_another_proxy = input("The current proxy has been rate limited. Do you want to use another proxy? (yes/no): ").lower() == "yes"
-        else:
-            print("You have been rate limited. Do you want to use a proxy?")
-            use_proxy = input("Do you want to use a proxy? (yes/no): ").lower()
-            if use_proxy == "yes":
-                proxy = input("Please enter the proxy URL: ")
-                proxy_auth_needed = input("Is authentication needed for the proxy? (yes/no): ").lower() == "yes"
-                if proxy_auth_needed:
-                    proxy_username = input("Please enter the proxy username: ")
-                    proxy_password = input("Please enter the proxy password: ")
-                    proxies = {
-                        "http": f"http://{proxy_username}:{proxy_password}@{proxy}",
-                        "https": f"https://{proxy_username}:{proxy_password}@{proxy}",
-                    }
-                else:
-                    proxies = {
-                        "http": proxy,
-                        "https": proxy,
-                    }
-                used_proxy = True  # Move this line here
-            else:
-                print("Exiting the program as no proxy is to be used.")
-                sys.exit()
-
-        # Send a POST request with a proxy
+    while True:  # Add a loop to keep sending requests until a successful response is received
+        # Send a POST request
         response = requests.post(url, json=payload, headers=headers, proxies=proxies)
-        """
 
-    # Rest of the code...
+        # Check if the rate limit has been exceeded
+        if response.status_code == 429:
+            print("You have been rate limited.")
+            sys.exit()
+            # proxy code(horribly written and not working properly) :(
+            if used_proxy and proxy_use_count >= 2:
+                # Ask the user if they want to use another proxy
+                use_another_proxy = input("The current proxy has been rate limited. Do you want to use another proxy? (yes/no): ").lower() == "yes"
+                if not use_another_proxy:
+                    print("Exiting the program as no other proxy is to be used.")
+                    sys.exit()
+                proxy_use_count = 0  # Reset the count for the new proxy
+            else:
+                print("You have been rate limited. Do you want to use a proxy?")
+                use_proxy = input("Do you want to use a proxy? (yes/no): ").lower()
+                if use_proxy == "yes":
+                    proxy = input("Please enter the proxy URL: ")
+                    proxy_auth_needed = input("Is authentication needed for the proxy? (yes/no): ").lower() == "yes"
+                    if proxy_auth_needed:
+                        proxy_username = input("Please enter the proxy username: ")
+                        proxy_password = input("Please enter the proxy password: ")
+                        proxies = {
+                            "http": f"http://{proxy_username}:{proxy_password}@{proxy}",
+                            "https": f"https://{proxy_username}:{proxy_password}@{proxy}",
+                        }
+                    else:
+                        proxies = {
+                            "http": proxy,
+                            "https": proxy,
+                        }
+                    used_proxy = True
+                else:
+                    print("Exiting the program as no proxy is to be used.")
+                    sys.exit()
 
-    # Check if the request was successful
-    if response.status_code // 100 == 2:
-        try:
-            # Extract the token from the response
-            token = response.json().get('token', 'No token found')
-            link = base_path + token
+            proxy_use_count += 1  # Increment the count each time a proxy is used
 
-            # Write the link to the file 'nitrolinks.txt'
-            with open('nitrolinks.txt', 'a') as file:
-                file.write(link + "\n")
-            print(link)
-        except json.JSONDecodeError:
-            print("JSONDecodeError: Unable to parse response as JSON.")
+        # Check if the request was successful
+        elif response.status_code // 100 == 2:
+            try:
+                # Extract the token from the response
+                token = response.json().get('token', 'No token found')
+                link = base_path + token
+
+                # Write the link to the file 'nitrolinks.txt'
+                with open('nitrolinks.txt', 'a') as file:
+                    file.write(link + "\n")
+                print(link)
+                break  # Exit the loop once a successful response is received
+            except json.JSONDecodeError:
+                print("JSONDecodeError: Unable to parse response as JSON.")
+                print("Response text:", response.text)
+            except Exception as e:
+                print("An unexpected error occurred:", str(e))
+        else:
+            print(f"Request failed with status code {response.status_code}")
             print("Response text:", response.text)
-        except Exception as e:
-            print("An unexpected error occurred:", str(e))
-    else:
-        print(f"Request failed with status code {response.status_code}")
-        print("Response text:", response.text)
+        if response.status_code == 504:
+            print("504 error, retrying...")
+
 
     return True
 
