@@ -121,3 +121,8 @@ while rate_limit_count < 5:
 
 for i in range(QUANTITY):
     gen()
+
+# if you want to use this code, please give credit to elily_uwu on discord
+# oh and also, please dont use this for malicious purposes
+# thanks :)
+# one last thing, hi :)
